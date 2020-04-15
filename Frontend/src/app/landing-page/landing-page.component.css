@@ -1,0 +1,82 @@
+#view2gether {
+    font-size: 10vh;
+}
+
+#description {
+    font-size: 3vh;
+}
+
+header {
+    position: relative;
+    background-color: black;
+    height: 100vh;
+    min-height: 25rem;
+    width: 100%;
+    overflow: hidden;
+}
+
+header video {
+    position: absolute;
+    min-width: 100%;
+    min-height: 100%;
+    width: 100%;
+    z-index: 0;
+    -o-filter: blur(1.5px);
+    filter: blur(1.5px);
+    object-fit: cover;
+    transform: scale(1.06);
+}
+
+header .container {
+    position: relative;
+    z-index: 2;
+}
+
+header .overlay {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: black;
+    opacity: 0.5;
+    z-index: 1;
+}
+
+#createRoomBtn {
+    margin-top: 15px;
+    font-size: 2vh;
+}
+
+@media (min-aspect-ratio: 16/9) {
+    #videoBG {
+        width: 100%;
+        height: auto;
+    }
+}
+
+@media (max-width: 767px) {
+    #videoBG {
+        display: none;
+    }
+    body {
+        position: relative;
+    }
+    .overlay {
+        position: fixed;
+        background: url('../../assets/mobileBG.jpg') no-repeat center center;
+        background-attachment: fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        height: 100%;
+        width: 100%;
+        -o-filter: blur(1px);
+        filter: blur(1px);
+        object-fit: cover;
+        transform: scale(1.03);
+        z-index: 1;
+    }
+    header .container {
+        z-index: 2;
+    }
+}
