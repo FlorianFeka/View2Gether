@@ -1,42 +1,32 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule, Routes } from '@angular/router';
 
 import { AppComponent } from './app.component';
-import { RoomComponent } from './room/room.component';
-import { RouterModule, Routes } from '@angular/router';
 import { LandingPageComponent } from './landing-page/landing-page.component';
-
-import { SocketService } from './services/socket.service'
+import { RoomComponent } from './room/room.component';
+import { SocketService } from './services/socket.service';
 
 const appRoutes: Routes = [
-  { 
-    path: 'room', 
-    component: RoomComponent 
+  {
+    path: 'room/:id',
+    component: RoomComponent
   },
-  { 
-    path: '', 
+  {
+    path: '',
     component: LandingPageComponent,
     pathMatch: 'full'
   },
-  { 
-    path: '**', 
+  {
+    path: '**',
     redirectTo: ''
   }
 ];
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    RoomComponent,
-    LandingPageComponent
-  ],
-  imports: [
-    BrowserModule,
-    RouterModule.forRoot(
-      appRoutes
-    )
-  ],
+  declarations: [AppComponent, RoomComponent, LandingPageComponent],
+  imports: [BrowserModule, RouterModule.forRoot(appRoutes)],
   providers: [SocketService],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

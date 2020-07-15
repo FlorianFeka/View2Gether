@@ -1,15 +1,21 @@
 <header>
-    <div class="overlay"></div>
-    <video id="videoBG" playsinline="playsinline" autoplay="autoplay" [muted]="true" loop="loop">
-        <source src="../assets/cinema.webm" type="video/webm">
-    </video>
-    <div class="container h-100">
-        <div class="d-flex h-100 text-center align-items-center">
-        <div class="w-100 text-white">
-            <h1 id="view2gether" class="display-3">View2Gether</h1>
-            <p id="description" class="lead mb-0">Enjoy your favourite Youtube videos with your friends, in real-time.</p>
-            <a routerLink="/room" routerLinkActive="active"><button id="createRoomBtn" type="button" class="btn btn-outline-light btn-transparent">Create Room</button></a>
-        </div>
-        </div>
+  <div class="overlay"></div>
+  <div class="container h-100">
+    <div class="d-flex h-100 text-center align-items-center">
+      <div class="w-100 text-white">
+        <h1 id="view2gether" class="display-3">View2Gether</h1>
+        <p id="description" class="lead mb-0">
+          Enjoy your favourite Youtube videos with your friends, in real-time.
+        </p>
+        <button
+          id="createRoomBtn"
+          type="button"
+          class="btn btn-outline-light btn-transparent"
+          (click)="createRoom()"
+        >
+          Create Room
+        </button>
+      </div>
     </div>
+  </div>
 </header>

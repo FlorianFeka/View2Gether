@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { v4 } from 'uuid';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-landing-page',
@@ -6,10 +8,12 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./landing-page.component.css']
 })
 export class LandingPageComponent implements OnInit {
+  constructor(private router: Router) {}
 
-  constructor() { }
+  ngOnInit(): void {}
 
-  ngOnInit(): void {
+  createRoom() {
+    const id: string = v4();
+    this.router.navigate(['/room', id]);
   }
-
 }
