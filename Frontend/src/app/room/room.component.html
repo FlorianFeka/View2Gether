@@ -1,14 +1,14 @@
 <div class="row justify-content-center" id="search-bar">
-    <div class="input-group col-8">
-        <input type="text" class="form-control" placeholder="Youtube-URL" #youtubeURL>
-        <div class="input-group-append">
-          <button class="btn btn-secondary" type="button" (click)="changeVideoURL(youtubeURL.value)">
-            <i class="fa fa-search"></i>
-          </button>
-        </div>
+  <div class="input-group col-8">
+    <input type="text" class="form-control" placeholder="Youtube-URL" #youtubeURL />
+    <div class="input-group-append">
+      <button class="btn btn-secondary" type="button" (click)="changeVideoURL(youtubeURL.value)">
+        <i class="fa fa-search"></i>
+      </button>
     </div>
+  </div>
 </div>
 
 <div class="row justify-content-center" id="video-section">
-    <div id="player"></div>
+  <div id="player"></div>
 </div>

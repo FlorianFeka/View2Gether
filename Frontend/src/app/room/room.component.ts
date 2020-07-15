@@ -19,10 +19,7 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   isRestricted = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  constructor(
-    private route: ActivatedRoute,
-    private socketService: SocketService
-  ) {}
+  constructor(private route: ActivatedRoute, private socketService: SocketService) {}
 
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id');
@@ -42,19 +39,17 @@ export class RoomComponent implements OnInit, OnDestroy {
     }
 
     this.socketService.joinRoom(this.id);
-    this.commands = this.socketService
-      .onCommand()
-      .subscribe((data: Command) => {
-        switch (data.action) {
-          case Action.play:
-            this.changeVideo(data.value);
-            break;
-          case Action.pause:
-            break;
-          case Action.speed:
-            break;
-        }
-      });
+    this.commands = this.socketService.onCommand().subscribe((data: Command) => {
+      switch (data.action) {
+        case Action.play:
+          this.changeVideo(data.value);
+          break;
+        case Action.pause:
+          break;
+        case Action.speed:
+          break;
+      }
+    });
 
     const tag = document.createElement('script');
     tag.src = 'https://www.youtube.com/iframe_api';
