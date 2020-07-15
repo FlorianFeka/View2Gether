@@ -1,25 +1,37 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { SocketService } from '../services/socket.service';
+import { Command, Action } from '../models/Command';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.css']
 })
-export class RoomComponent implements OnInit {
-
+export class RoomComponent implements OnInit, OnDestroy {
   public YT: any;
   public video: any;
   public player: any;
-  public reframed: Boolean = false;
+  public reframed = false;
+  public id: string;
+  private commands: Subscription;
 
   isRestricted = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  constructor() { }
+  constructor(
+    private route: ActivatedRoute,
+    private socketService: SocketService
+  ) {}
 
   ngOnInit(): void {
-    // default video xd
-    this.video = 'ZZ5LpwO-An4';
+    this.id = this.route.snapshot.paramMap.get('id');
+    this.video = 'uxfoa23skHg';
     this.init();
+  }
+
+  ngOnDestroy(): void {
+    this.commands.unsubscribe();
   }
 
   init() {
@@ -29,25 +41,50 @@ export class RoomComponent implements OnInit {
       return;
     }
 
-    var tag = document.createElement('script');
+    this.socketService.joinRoom(this.id);
+    this.commands = this.socketService
+      .onCommand()
+      .subscribe((data: Command) => {
+        switch (data.action) {
+          case Action.play:
+            this.changeVideo(data.value);
+            break;
+          case Action.pause:
+            break;
+          case Action.speed:
+            break;
+        }
+      });
+
+    const tag = document.createElement('script');
     tag.src = 'https://www.youtube.com/iframe_api';
-    var firstScriptTag = document.getElementsByTagName('script')[0];
+    const firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
     window['onYouTubeIframeAPIReady'] = () => this.startVideo();
   }
 
-  changeVideoURL(url:string){
+  changeVideo(url: string): boolean {
     // Regex to extract video ID from url
-    var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    var match = url.match(regExp);
+    let regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    let match = url.match(regExp);
     if (match && match[2].length == 11) {
       this.video = match[2];
-      this.player.loadVideoById(match[2], 0, "default")
+      this.player.loadVideoById(match[2], 0, 'default');
+      return true;
     } else {
       // TODO - Handle incorrect urls
+      return false;
     }
-    
+  }
+
+  changeVideoURL(url: string) {
+    if (this.changeVideo(url)) {
+      const command = new Command();
+      command.action = Action.play;
+      command.value = url;
+      this.socketService.sendCommandToRoom(this.id, command);
+    }
   }
 
   startVideo() {
@@ -63,13 +100,12 @@ export class RoomComponent implements OnInit {
         showinfo: 0,
         fs: 0,
         playsinline: 1
-
       },
       events: {
-        'onStateChange': this.onPlayerStateChange.bind(this),
-        'onError': this.onPlayerError.bind(this),
-        'onReady': this.onPlayerReady.bind(this),
-        'onPlaybackRateChange': this.onPlaybackRateChange.bind(this)
+        onStateChange: this.onPlayerStateChange.bind(this),
+        onError: this.onPlayerError.bind(this),
+        onReady: this.onPlayerReady.bind(this),
+        onPlaybackRateChange: this.onPlaybackRateChange.bind(this)
       }
     });
   }
@@ -84,40 +120,38 @@ export class RoomComponent implements OnInit {
   }
 
   onPlayerStateChange(event) {
-    console.log(event)
     switch (event.data) {
       case window['YT'].PlayerState.PLAYING:
-        if (this.player.getCurrentTime() == 0) {
+        if (this.player.getCurrentTime() === 0) {
           console.log('started ' + this.player.getCurrentTime());
         } else {
-          console.log('playing ' + this.player.getCurrentTime())
-        };
+          console.log('playing ' + this.player.getCurrentTime());
+        }
         break;
       case window['YT'].PlayerState.PAUSED:
-        if (this.player.getDuration() - this.player.getCurrentTime() != 0) {
+        if (this.player.getDuration() - this.player.getCurrentTime() !== 0) {
           console.log('paused' + ' @ ' + this.player.getCurrentTime());
-        };
+        }
         break;
       case window['YT'].PlayerState.ENDED:
         console.log('ended ');
         break;
-    };
-  };
+    }
+  }
 
   onPlaybackRateChange(event) {
-    console.log("speed changed to " + event.data)
+    console.log('speed changed to ' + event.data);
   }
 
   onPlayerError(event) {
     switch (event.data) {
       case 2:
-        console.log('' + this.video)
+        console.log('' + this.video);
         break;
       case 100:
         break;
       case 101 || 150:
         break;
-    };
-  };
-
+    }
+  }
 }

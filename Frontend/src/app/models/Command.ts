@@ -1,11 +1,10 @@
 export class Command {
-    roomId: string;
-    action: Action;
-    value: any;
+  action: Action;
+  value: any;
 }
 
-enum Action {
-    play,
-    pause,
-    speed
+export enum Action {
+  play,
+  pause,
+  speed
 }
