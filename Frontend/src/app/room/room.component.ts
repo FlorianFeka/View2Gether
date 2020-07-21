@@ -31,7 +31,8 @@ export class RoomComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id');
     this.joined = this.checkIfJoinedRoom();
-    this.video = 'uxfoa23skHg';
+    // default video
+    this.video = 'XIMLoLxmTDw';
     this.init();
   }
 
@@ -52,9 +53,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     const firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-    window['onYouTubeIframeAPIReady'] = () => {
-      this.startVideo();
-    };
+    window['onYouTubeIframeAPIReady'] = () => this.startVideo();
   }
 
   checkIfJoinedRoom() {
@@ -71,7 +70,12 @@ export class RoomComponent implements OnInit, OnDestroy {
         .subscribe((info: Info) => {
           console.log(info);
 
-          this.changeVideo(info.videoUrl);
+          this.player.loadVideoById(info.videoUrl, info.time, 'default');
+          if (info.paused) {
+            this.player.pauseVideo();
+          } else {
+            this.player.playVideo();
+          }
           infoSub.unsubscribe();
         });
     }
@@ -81,7 +85,8 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.onGetInfo = this.socketService.onGetInfo().subscribe(() => {
       const info: Info = <Info>{
         videoUrl: this.video,
-        time: Date.now(),
+        timestamp: Date.now(),
+        time: this.player.getCurrentTime(),
         paused: this.paused,
       };
       console.log(info);
@@ -125,6 +130,10 @@ export class RoomComponent implements OnInit, OnDestroy {
     console.log(this.player);
 
     this.player.loadVideoById(videoId, 0, 'default');
+
+    // Set time in Video change always to 0 because of videos already seen
+    // by the user thus sometimes not beginning at 0
+    this.player.seekTo(0, true);
   }
 
   changeRoomVideo(url: string) {
@@ -135,6 +144,13 @@ export class RoomComponent implements OnInit, OnDestroy {
       command.value = this.video;
       this.socketService.sendCommand(this.id, command);
     }
+  }
+
+  setupSocket() {
+    this.socketService.joinRoom(this.id);
+    this.listenToInfoRequests();
+    this.listenToCommands();
+    this.requestForInfoIfJoining();
   }
 
   startVideo() {
@@ -161,10 +177,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   }
 
   onPlayerReady(event) {
-    this.socketService.joinRoom(this.id);
-    this.listenToInfoRequests();
-    this.listenToCommands();
-    this.requestForInfoIfJoining();
+    this.setupSocket();
     if (this.isRestricted) {
       event.target.mute();
       event.target.playVideo();
