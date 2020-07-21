@@ -9,7 +9,7 @@ import { Info } from '../models/Info';
 const SERVER_URL = environment.socketUrl;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SocketService {
   private socket;
@@ -22,12 +22,16 @@ export class SocketService {
     this.socket.emit('joinRoom', roomId);
   }
 
-  sendCommandToRoom(roomId: string, command: Command) {
-    this.socket.emit('sendCommandToRoom', roomId, command);
+  sendCommand(roomId: string, command: Command) {
+    this.socket.emit('sendCommand', roomId, command);
   }
 
-  getInfo() {
-    this.socket.emit('getInfo');
+  sendInfo(roomId: string, info: Info) {
+    this.socket.emit('sendInfo', roomId, info);
+  }
+
+  getInfo(roomId: String): Observable<Info> {
+    this.socket.emit('getInfo', roomId);
     return new Observable<Info>((observer) => {
       this.socket.on('info', (data: Info) => {
         observer.next(data);
@@ -35,10 +39,10 @@ export class SocketService {
     });
   }
 
-  onGetInfo(roomId: string, info: Info) {
-    return new Observable<Command>((observer) => {
-      this.socket.on('command', (data: Command) => {
-        observer.next(data);
+  onGetInfo(): Observable<Info> {
+    return new Observable<Info>((observer) => {
+      this.socket.on('getInfo', () => {
+        observer.next();
       });
     });
   }
