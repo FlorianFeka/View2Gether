@@ -19,6 +19,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   private commands: Subscription;
   private onGetInfo: Subscription;
   private paused: boolean = true;
+  private joined: boolean = true;
 
   isRestricted = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -29,6 +30,7 @@ export class RoomComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id');
+    this.joined = this.checkIfJoinedRoom();
     this.video = 'uxfoa23skHg';
     this.init();
   }
@@ -55,8 +57,15 @@ export class RoomComponent implements OnInit, OnDestroy {
     };
   }
 
+  checkIfJoinedRoom() {
+    if (history.state.data !== undefined && history.state.data.join === false) {
+      return false;
+    }
+    return true;
+  }
+
   requestForInfoIfJoining() {
-    if (history.state.data === undefined || history.state.data.join) {
+    if (this.joined) {
       const infoSub = this.socketService
         .getInfo(this.id)
         .subscribe((info: Info) => {
