@@ -236,14 +236,10 @@ export class RoomComponent implements OnInit, OnDestroy {
         if (this.player.getDuration() - this.player.getCurrentTime() !== 0) {
           this.paused = true;
           console.log('paused' + ' @ ' + this.player.getCurrentTime());
-          if (!this.seekTo) {
-            const command = <Command>{
-              action: Action.pause,
-              value: this.player.getCurrentTime(),
-            };
-            this.socketService.sendCommand(this.id, command);
-          }
-          this.seekTo = false;
+          const command = <Command>{
+            action: Action.pause,
+          };
+          this.socketService.sendCommand(this.id, command);
         }
         break;
       case window['YT'].PlayerState.ENDED:
