@@ -4,7 +4,8 @@ export class Command {
 }
 
 export enum Action {
+  change,
   play,
   pause,
-  speed
+  speed,
 }

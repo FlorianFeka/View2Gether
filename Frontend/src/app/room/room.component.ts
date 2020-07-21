@@ -68,9 +68,18 @@ export class RoomComponent implements OnInit, OnDestroy {
       const infoSub = this.socketService
         .getInfo(this.id)
         .subscribe((info: Info) => {
+          const timestamp = Date.now();
           console.log(info);
+          const diff = timestamp - info.timestamp;
+          const loadingDelay = 0.5;
+          const diffSec = diff / 1000 + loadingDelay;
+          console.log(`Delay: ${diffSec}`);
 
-          this.player.loadVideoById(info.videoUrl, info.time, 'default');
+          this.player.loadVideoById(
+            info.videoUrl,
+            info.time + diffSec,
+            'default',
+          );
           if (info.paused) {
             this.player.pauseVideo();
           } else {
@@ -100,12 +109,14 @@ export class RoomComponent implements OnInit, OnDestroy {
       .onCommand()
       .subscribe((data: Command) => {
         switch (data.action) {
-          case Action.play:
-            console.log('Command Play');
-
+          case Action.change:
             this.changeVideo(data.value);
             break;
+          case Action.play:
+            this.player.playVideo();
+            break;
           case Action.pause:
+            this.player.pauseVideo();
             break;
           case Action.speed:
             break;
@@ -139,9 +150,10 @@ export class RoomComponent implements OnInit, OnDestroy {
   changeRoomVideo(url: string) {
     this.video = this.extractVideoId(url);
     if (this.video != null) {
-      const command = new Command();
-      command.action = Action.play;
-      command.value = this.video;
+      const command = <Command>{
+        action: Action.change,
+        value: this.video,
+      };
       this.socketService.sendCommand(this.id, command);
     }
   }
@@ -191,15 +203,28 @@ export class RoomComponent implements OnInit, OnDestroy {
       case window['YT'].PlayerState.PLAYING:
         if (this.player.getCurrentTime() === 0) {
           console.log('started ' + this.player.getCurrentTime());
+          this.paused = false;
+          const command = <Command>{
+            action: Action.play,
+          };
+          this.socketService.sendCommand(this.id, command);
         } else {
           this.paused = false;
           console.log('playing ' + this.player.getCurrentTime());
+          const command = <Command>{
+            action: Action.play,
+          };
+          this.socketService.sendCommand(this.id, command);
         }
         break;
       case window['YT'].PlayerState.PAUSED:
         if (this.player.getDuration() - this.player.getCurrentTime() !== 0) {
           this.paused = true;
           console.log('paused' + ' @ ' + this.player.getCurrentTime());
+          const command = <Command>{
+            action: Action.pause,
+          };
+          this.socketService.sendCommand(this.id, command);
         }
         break;
       case window['YT'].PlayerState.ENDED:
