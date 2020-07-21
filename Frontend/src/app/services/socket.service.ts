@@ -30,7 +30,7 @@ export class SocketService {
     this.socket.emit('sendInfo', roomId, info);
   }
 
-  getInfo(roomId: String): Observable<Info> {
+  getInfo(roomId: string): Observable<Info> {
     this.socket.emit('getInfo', roomId);
     return new Observable<Info>((observer) => {
       this.socket.on('info', (data: Info) => {

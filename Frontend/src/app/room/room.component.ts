@@ -20,6 +20,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   private onGetInfo: Subscription;
   private paused: boolean = true;
   private joined: boolean = true;
+  private seekTo: boolean = false;
 
   isRestricted = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -108,15 +109,25 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.commands = this.socketService
       .onCommand()
       .subscribe((data: Command) => {
+        console.log(data);
+
         switch (data.action) {
           case Action.change:
             this.changeVideo(data.value);
             break;
           case Action.play:
             this.player.playVideo();
+            if (data.value) {
+              this.player.seekTo(data.value, true);
+              this.seekTo = true;
+            }
             break;
           case Action.pause:
             this.player.pauseVideo();
+            if (data.value) {
+              this.player.seekTo(data.value, true);
+              this.seekTo = true;
+            }
             break;
           case Action.speed:
             break;
@@ -211,20 +222,28 @@ export class RoomComponent implements OnInit, OnDestroy {
         } else {
           this.paused = false;
           console.log('playing ' + this.player.getCurrentTime());
-          const command = <Command>{
-            action: Action.play,
-          };
-          this.socketService.sendCommand(this.id, command);
+          if (!this.seekTo) {
+            const command = <Command>{
+              action: Action.play,
+              value: this.player.getCurrentTime(),
+            };
+            this.socketService.sendCommand(this.id, command);
+          }
+          this.seekTo = false;
         }
         break;
       case window['YT'].PlayerState.PAUSED:
         if (this.player.getDuration() - this.player.getCurrentTime() !== 0) {
           this.paused = true;
           console.log('paused' + ' @ ' + this.player.getCurrentTime());
-          const command = <Command>{
-            action: Action.pause,
-          };
-          this.socketService.sendCommand(this.id, command);
+          if (!this.seekTo) {
+            const command = <Command>{
+              action: Action.pause,
+              value: this.player.getCurrentTime(),
+            };
+            this.socketService.sendCommand(this.id, command);
+          }
+          this.seekTo = false;
         }
         break;
       case window['YT'].PlayerState.ENDED:
