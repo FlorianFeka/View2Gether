@@ -41,7 +41,7 @@ header .overlay {
   z-index: 1;
 }
 
-#createRoomBtn {
+.landingPageButton {
   margin-top: 15px;
   font-size: 2vh;
 }
