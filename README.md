@@ -1,5 +1,7 @@
 # View2Gether 📽
 
+Backend: https://github.com/FlorianFeka/View2Gether-Backend
+
 Real-Time [Youtube](https://www.youtube.com/) synchronisation between multiple clients.
 
 # Functionality
